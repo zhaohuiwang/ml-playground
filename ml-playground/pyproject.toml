@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "ml-playground"
+version = "0.1.0"
+description = ""
+authors = ["Zhaohui Wang <ezhwang@gmail.com>"]
+readme = "README.md"
+packages = [{include = "ml_playground", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[tool.poetry.group.test.dependencies]
+ipykernel = "^6.29.5"
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
