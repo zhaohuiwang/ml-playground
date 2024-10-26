@@ -8,12 +8,12 @@ packages = [{include = "ml_playground", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+tensorflow = "^2.17.0"
+keras = "^3.6.0"
+matplotlib = "^3.9.2"
 
-
-[tool.poetry.group.test.dependencies]
-ipykernel = "^6.29.5"
-pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
