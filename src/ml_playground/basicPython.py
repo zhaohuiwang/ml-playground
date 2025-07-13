@@ -307,5 +307,10 @@ https://realpython.com/ref/glossary/callback/
 In Python, a callback is a function that you pass as an argument to another function. The receiving function can then call the callback at a later point, often as a response to an event or after completing a task.
 
 Callbacks are a powerful way to customize the behavior of functions and are commonly used in asynchronous programming, event handling, and GUI applications.
+
+Keras has a built-in, high level callback system - keras.callbacks.Callback class that allow you to customize the behavior of your Keras model during training, evaluation, or prediction. 
+
+PyTorch Lightning provides a robust and extensible callback system - lightning.pytorch.callbacks.Callback, that allows users to inject custom logic at various stages of the training process.
+
 """
 
