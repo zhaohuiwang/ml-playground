@@ -312,5 +312,21 @@ Keras has a built-in, high level callback system - keras.callbacks.Callback clas
 
 PyTorch Lightning provides a robust and extensible callback system - lightning.pytorch.callbacks.Callback, that allows users to inject custom logic at various stages of the training process.
 
+
+Google ADK callbacks allow you to observe, customize, and even control the agent's behavior at specific, predefined points without modifying the core ADK framework code (Observe & debug, Customize & control, Implement guardrails, Manage state and integrate & enhance).
+
+Before Agent callback and After Agent callback
+Before Model callback and After Model callback
+Before Tool callback and After Tool callback
+
+The Callback Mechanism: Interception and Control
+When the ADK framework encounters a point where a callback can run (e.g., just before calling the LLM), it checks if you provided a corresponding callback function for that agent. If you did, the framework executes your function.
+
+Callback arguments - CallbackContext or ToolContext (Context objects) contains vital information about the current state of the agent's execution, including the invocation details, session state, and potentially references to services like artifacts or memory. You use these context objects to understand the situation and interact with the framework.
+
+Controlling the Flow through the return value from callbacks:
+when `return None` (Allow Default Behavior)
+when `return <Specific Object>` (Override Default Behavior)
+
 """
 
