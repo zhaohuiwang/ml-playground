@@ -335,3 +335,34 @@ def file_writer(name):
 with file_writer("example.txt") as file:
 	file.write("hello world")
 	
+###### @override ######
+
+# The syntax
+
+from typing import override
+
+class Parent:
+    def greet(self) -> str:
+        return "Hello from Parent!"
+
+class Child(Parent):
+    @override
+    def greet(self) -> str:
+        return "Hello from Child!"
+
+
+obj = Child()
+obj.greet()
+ 
+"""
+Available from Python 3.12 onwards. Its purpose is to explicitly indicate that a method in a subclass is intended to override a method inherited from a parent class.
+
+The @override decorator is primarily for static type checking and is optional at runtime. Python's method resolution order (MRO) will still correctly handle method overriding even without the decorator.
+
+The @override decorator helps catch common errors when overriding methods in Python. These errors include:
+
+Method Not Found (Method Names are different)
+Return Type Mismatch
+Signature Mismatch (Different Parameters between parent and child methods)
+
+"""
