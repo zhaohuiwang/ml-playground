@@ -143,8 +143,23 @@ df['column'].cat.set_categories(['cat1', 'cat2'], ordered=True)  # ordered categ
 df.reset_index(drop=True)
 df.set_index(['col1', 'col2'])  # set multiple indexes
 
+# append and extend methods for list
+list_a = [1, 2, 3]
+list_b = ['a', 'b']
+list_a.append(4)
+list_a.append(list_b)
+print(list_a)
+
+list_a.extend(list_b)
+print(list_a)
 
 
+content = []
+# content attribute is not considered "falsy" (e.g., it's not None, an empty string, or an empty list)
+if content:
+    print(True)
+else:
+    print(False)
 
 """
 Easydict
@@ -329,4 +344,235 @@ when `return None` (Allow Default Behavior)
 when `return <Specific Object>` (Override Default Behavior)
 
 """
+from typing_extensions import override
+
+class MyClass:
+    def __init__(self):
+        self._data = [1, 2, 3]
+
+    @property
+    @override
+    def data(self):
+        return self._data
+
+my_instance = MyClass()
+# Correct way to iterate:
+for item in my_instance.data:
+    print(item)
+    
+
+class MyClass:
+    def __init__(self):
+        self._data = [1, 2, 3]
+
+    @property
+    @override
+    def data(self):
+        return self._data
+
+    def __iter__(self):
+        return iter(self._data)  #  Return an iterator from the underlying iterable.
+
+my_instance = MyClass()
+for item in my_instance:  # Now you can iterate directly over the instance.
+    print(item)
+
+
+
+
+############### Error Handeling ###############
+# raise ValueError vs print
+def process_positive_number(num):
+    if num <= 0:
+        raise ValueError("Input must be a positive number.")
+    # When raise ValueError is executed, it immediately interrupts the normal flow of the program. Unless the ValueError is caught and handled by a try...except block, the program will terminate and display a traceback, indicating where the error occurred.
+    print("continue after raise ValueError")
+
+try:
+    process_positive_number(-5)
+except ValueError as e:
+    print(f"Error: {e}")
+
+process_positive_number(-5)
+
+process_positive_number(5)
+
+
+
+def process_positive_number(num):
+    if num <= 0:
+        print("continue after raise ValueError")
+    # Program execution continues normally after a print() statement, unless other code explicitly causes a halt.
+    print("Continuing ...")
+
+process_positive_number(-5)
+
+process_positive_number(5)
+
+
+############### Environment variables ###############
+"""
+When the environment variables are saved in .env file, like
+DATABASE_URL='https://www.example.com'
+API_KEY=your-api-key
+
+And you run a script as a module
+"""
+
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Define the path to the .env file
+env_file_path = Path(__file__).parent.parent.parent / ".env"
+
+# Load environment variables from the specified .env file
+load_dotenv(dotenv_path=env_file_path)
+
+# Now you can access them using os.getenv()
+db_url = os.getenv("DATABASE_URL")
+api_key = os.getenv("API_KEY")
+
+print(f"Database URL: {db_url}")
+print(f"API Key: {api_key}")
+
+
+############### Command-line interfaces (CLIs) ###############
+"""
+sys.argv: A built-in Python list in the sys module that captures command-line arguments as strings. It's the simplest, most basic way to access CLI inputs but requires manual parsing.
+
+argparse: A standard library module for parsing command-line arguments. It provides a robust, flexible framework for defining and validating arguments, generating help messages, and handling complex CLIs.
+
+Click: A third-party library (pip install click) that uses decorators to create concise, user-friendly CLIs with features like nested commands and automatic help generation.
+
+Typer: Similar to Click but leverages type hints, making it more modern and concise for typed Python code. (pip install typer)
+
+Hydra: A third-party framework (pip install hydra-core) designed for configuring complex applications, particularly machine learning experiments. It generates CLIs as a side effect, with support for hierarchical configuration via YAML files.
+
+
+docopt: Simpler than argparse/Click for small CLIs, but less structured than Hydra for config management. (pip install docopt)
+
+Fire: Easiest for exposing existing code as a CLI, but less predictable than Click or argparse for structured interfaces. (pip install fire)    
+"""
+
+# sys.argv Use case: Simple script needing basic argument access.
+import sys
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: script.py <name> <age>")
+        sys.exit(1)
+    
+    name = sys.argv[1]
+    age = int(sys.argv[2])  # Manual type conversion
+    print(f"Name: {name}, Age: {age}")
+
+if __name__ == "__main__":
+    main()
+# Run: python script.py Alice 30
+# Output: Name: Alice, Age: 30
+# Pros: No dependencies, simple for small scripts.
+# Cons: No built-in validation, error handling, or help messages.
+
+
+# argparse Use case: CLI with options, flags, and help messages.
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="Greet a user.")
+    parser.add_argument("name", help="User's name")
+    parser.add_argument("--age", type=int, default=25, help="User's age")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    args = parser.parse_args()
+    
+    if args.verbose:
+        print(f"Processing for {args.name} with age {args.age}")
+    print(f"Name: {args.name}, Age: {args.age}")
+
+if __name__ == "__main__":
+    main()
+
+# Run: python script.py Alice --age 30 --verbose
+# Output:
+# Processing for Alice with age 30
+# Name: Alice, Age: 30
+# Run with help: python script.py --help
+# Output: Shows auto-generated help message.
+# Pros: Built-in, supports types, defaults, and help.
+# Cons: Verbose setup for complex CLIs.
+
+
+# Click Use case: Modern CLI with minimal boilerplate and complex features.
+import click
+
+@click.command()
+@click.argument("name")
+@click.option("--age", type=int, default=25, help="User's age")
+@click.option("--verbose", is_flag=True, help="Enable verbose output")
+def greet(name, age, verbose):
+    if verbose:
+        click.echo(f"Processing for {name} with age {age}")
+    click.echo(f"Name: {name}, Age: {age}")
+
+if __name__ == "__main__":
+    greet()
+
+# Run: python script.py Alice --age 30 --verbose
+# Output:
+# Processing for Alice with age 30
+# Name: Alice, Age: 30
+# Run with help: python script.py --help
+# Output: Auto-generated help message.
+# Pros: Clean syntax, supports complex CLIs, great for user-facing tools.
+# Cons: Requires external dependency.
+
+# Hydra Use case: Managing complex configurations, especially for research or ML.
+
+# Typer Description: A modern CLI framework built on top of Click, using type hints for automatic argument parsing. Ideal for Python 3.6+ projects leveraging type annotations.
+import typer
+
+app = typer.Typer()
+
+@app.command()
+def greet(name: str, age: int = 25, verbose: bool = False):
+    if verbose:
+        typer.echo(f"Processing for {name} with age {age}")
+    typer.echo(f"Name: {name}, Age: {age}")
+
+if __name__ == "__main__":
+    app()
+
+# Run: python script.py Alice --age 30 --verbose
+# Output:
+# Processing for Alice with age 30
+# Name: Alice, Age: 30
+# Pros: Type-hint driven, clean syntax, great for modern Python projects.
+# Cons: Requires external dependency (pip install typer).
+
+    
+import hydra
+from omegaconf import DictConfig
+
+@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+def main(cfg: DictConfig):
+    print(f"Name: {cfg.user.name}, Age: {cfg.user.age}")
+    if cfg.verbose:
+        print(f"Verbose mode: Processing for {cfg.user.name}")
+
+if __name__ == "__main__":
+    main()
+'''
+# conf/config.yaml
+user:
+  name: Alice
+  age: 25
+verbose: false
+'''
+# Run: python script.py user.name=Bob user.age=30 verbose=true
+# Output:
+# Name: Bob, Age: 30
+# Verbose mode: Processing for Bob
+
+# Pros: Powerful for config management, supports YAML, command-line overrides, and hierarchical configs.
+# Cons: Steep learning curve, overkill for simple CLIs.
 
