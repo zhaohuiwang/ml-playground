@@ -366,3 +366,215 @@ Return Type Mismatch
 Signature Mismatch (Different Parameters between parent and child methods)
 
 """
+
+###### @typing.runtime_checkable ######
+"""
+The @typing.runtime_checkable decorator marks a Protocol class as capable of being used with runtime checks like isinstance() and issubclass(). Without this decorator, Protocol classes are primarily for static type checking and cannot be used in runtime checks.
+
+Protocol:
+1. Internal protocols, such as the iterator, context manager, and descriptor protocols. These protocols consist of special methods that make up a given protocol. For example, the .__iter__() and .__next__() methods define the iterator protocol.
+2. The second protocol term specifies the methods and attributes that a class must implement to be considered of a given type. This feature allows you to enforce a relationship between types or classes without the burden of inheritance. This relationship is known as structural subtyping or static duck typing.
+For example, built-in container types such as lists, tuples, strings, dictionaries, and sets all support iteration.
+Dynamic: Python interpreter checks an object’s type when the code runs and can change during the variable's lifetime.
+x =4
+x = "x is a string now"
+Duck typing allows for flexible and dynamic code. With duck typing, you can use different and unrelated objects in a given context if those objects have the expected methods and attributes. You don't have to ensure that the objects share a common parent type through inheritance.
+
+
+"""
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class Greetable(Protocol):
+    """A protocol for objects that can be greeted."""
+    def greet(self, name: str) -> str:
+        ...
+
+class Person:
+    def greet(self, name: str) -> str:
+        return f"Hello, {name}!"
+
+class Robot:
+    def greet(self, name: str) -> str:
+        return f"Greetings, human {name}."
+
+class NonGreetable:
+    def say_hi(self) -> str:
+        return "Hi!"
+
+# Create instances
+person_instance = Person()
+robot_instance = Robot()
+non_greetable_instance = NonGreetable()
+
+# Perform runtime checks using isinstance()
+print(f"Is person_instance Greetable? {isinstance(person_instance, Greetable)}")
+print(f"Is robot_instance Greetable? {isinstance(robot_instance, Greetable)}")
+print(f"Is non_greetable_instance Greetable? {isinstance(non_greetable_instance, Greetable)}")
+
+# Example of using the protocol
+def introduce(obj: Greetable, target_name: str):
+    print(obj.greet(target_name))
+
+if isinstance(person_instance, Greetable):
+    introduce(person_instance, "Alice")
+
+if isinstance(robot_instance, Greetable):
+    introduce(robot_instance, "Bob")
+
+
+class Duck:
+    def quack(self):
+        return "The duck is quacking!"
+class Person:
+    def quack(self):
+        return "The person is imitating a duck quacking!"
+
+def make_it_quack(duck: Duck) -> str:
+    return duck.quack()
+
+print(make_it_quack(Duck()))
+print(make_it_quack(Person()))
+# error: Argument 1 to "make_it_quack" has incompatible type "Person"; expected "Duck"  [arg-type]
+
+# One way you can fix this issue is to use inheritance
+class QuackingThing:
+    def quack(self):
+        raise NotImplementedError(
+            "Subclasses must implement this method"
+        )
+
+class Duck(QuackingThing):
+    def quack(self):
+        return "The duck is quacking!"
+class Person(QuackingThing):
+    def quack(self):
+        return "The person is imitating a duck quacking!"
+    
+def make_it_quack(duck: QuackingThing) -> str:
+    return duck.quack()
+
+print(make_it_quack(Duck()))
+print(make_it_quack(Person()))
+
+""" 
+Two ways to decide whether two objects are compatible as types:
+Nominal subtyping is strictly based on inheritance. A class that inherits from a parent class is a subtype of its parent(how the built-in isinstance() works).
+Structural subtyping is based on the internal structure of classes. Two classes with the same methods and attributes are structural subtypes of one another.
+"""
+
+class Dog:
+    def __init__(self, name):
+        self.name = name
+    def eat(self):
+        print(f"{self.name} is eating.")
+    def drink(self):
+        print(f"{self.name} is drinking.")
+    def make_sound(self):
+        print(f"{self.name} is barking.")
+
+class Cat:
+    def __init__(self, name):
+        self.name = name
+    def eat(self):
+        print(f"{self.name} is eating.")
+    def drink(self):
+        print(f"{self.name} is drinking.")
+    def make_sound(self):
+        print(f"{self.name} is meowing.")
+# We could define an Animal class and Bog(Animal), Cat(Animal) subclass (Nominal subtyping). But here Dog and Cat don’t have a strict inheritance relationship. They’re completely decoupled and independent classes. But they have the same internal structure, including methods and attributes(Structural subtype), thus can be used in a duck typing context.
+for animal in [Cat("Tom"), Dog("Pluto")]:
+    animal.eat()
+    animal.drink()
+    animal.make_sound()
+# However, up to this point, you don’t have a formal way to indicate that Cat and Dog are subtypes. To formalize this subtype relationship, you can use a protocol.
+# protocols allow you to specify the expected methods and attributes that a class should have to support a given feature without requiring explicit inheritance. So, protocols are explicit sets of methods and attributes.
+
+
+
+
+
+
+
+
+### Protocols vs Abstract Base Classes ###
+
+from abc import ABC, abstractmethod
+from math import pi
+
+class Shape(ABC):
+    """
+    The @abstractmethod decorator in Python, imported from the abc module, is used to define abstract methods within abstract base classes (ABCs). It signifies that a method must be implemented by any concrete (non-abstract) subclass that inherits from the abstract class. This ensures that subclasses adhere to a specific interface or contract defined by the abstract methods. 
+    """
+    @abstractmethod
+    def get_area(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_perimeter(self) -> float:
+        pass
+
+class Circle(Shape):
+    def __init__(self, radius) -> None:
+        self.radius = radius
+
+    def get_area(self) -> float:
+        return pi * self.radius**2
+
+    def get_perimeter(self) -> float:
+        return 2 * pi * self.radius
+
+class Square(Shape):
+    def __init__(self, side) -> None:
+        self.side = side
+
+    def get_area(self) -> float:
+        return self.side**2
+
+    def get_perimeter(self) -> float:
+        return 4 * self.side
+    
+
+from typing import Protocol
+from math import pi
+
+# Add @runtime_checkable decorator to mark a protocol class as a runtime protocol so that you can use it with isinstance() and issubclass().
+# @runtime_checkable
+class Shape(Protocol):
+    def get_area(self) -> float:
+        ...
+
+    def get_perimeter(self) -> float:
+        ...
+# We define a class called Shape by inheriting from typing.Protocol. Shape implements two methods - get_area() and get_perimeter() which deine the Shape protocol itself. Note that protocol methods don't have a body, which you typically indicate with the ellipsis (...) syntax.
+
+class Circle:
+    def __init__(self, radius) -> None:
+        self.radius = radius
+
+    def get_area(self) -> float:
+        return pi * self.radius**2
+
+    def get_perimeter(self) -> float:
+        return 2 * pi * self.radius
+
+class Square:
+    def __init__(self, side) -> None:
+        self.side = side
+
+    def get_area(self) -> float:
+        return self.side**2
+
+    def get_perimeter(self) -> float:
+        return 4 * self.side
+# We define two classes, Circle and SSquare. These classes implement the Shape protocol because they have the same two methods - get_area() and get_perimeter(). 
+def print_shape_info(shape: Shape):
+    print(f"Area: {shape.get_area()}")
+    print(f"Perimeter: {shape.get_perimeter()}")
+# We can use objects of either class as arguments to the print_shape_info() function, which takes an Shape object as an argument.
+circle = Circle(10)
+square = Square(5)
+print_shape_info(circle)
+print_shape_info(square)
+
+# In short, the main difference between an abstract base class and a protocol is that the former works through a formal inheritance relationship, while the latter doesn’t need this relationship. 
