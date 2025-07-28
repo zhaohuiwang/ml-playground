@@ -206,6 +206,9 @@ test_fibonacci_no_cache()
 """
 @abstractmethod (from abc module)
 Purpose: Used to define an abstract method in an abstract base class (ABC). It forces subclasses to implement this method.
+Enforce interface - ensures theat subclasses implement specific methods, guranteeing a consistent interface across different implementation.
+Promotes abstration - Allows you to define abstract behavior without needing to know the specific implementation details at the abstract class level.
+Prevent instantiation - Prevents the creation of instances of the abstract class itself, forcing users to work with concrete substances.
 
 """
 from abc import ABC, abstractmethod
@@ -365,7 +368,35 @@ Method Not Found (Method Names are different)
 Return Type Mismatch
 Signature Mismatch (Different Parameters between parent and child methods)
 
+
+On the contrary, 1. The typing.final decorator is used to restrict the use of inheritance and overriding. 2. The typing.Final type qualifier is used to indicate that a variable or attribute should not be reassigned, redefined, or overridden.
 """
+from typing import final
+
+# decorator at class defination
+@final
+class Base:
+    ...
+
+class Derived(Base):  # Error: Cannot inherit from final class "Base"
+    ...
+
+# decorator at method defination
+from typing import final
+
+@final
+class Base:
+    ...
+
+class Derived(Base):  # Error: Cannot inherit from final class "Base"
+    ...
+
+# Final type.qualifier syntax Final[<type>] 
+from typing import Final
+ID: Final[float] = 1
+ID: Final = 1
+
+
 
 ###### @typing.runtime_checkable ######
 """
