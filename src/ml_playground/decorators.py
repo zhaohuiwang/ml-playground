@@ -339,7 +339,8 @@ with file_writer("example.txt") as file:
 	file.write("hello world")
 	
 ###### @override ######
-
+# The @override decorator is part of the standard typing module in Python 3.12 and later. For earlier Python versions, it can be imported from the `typing_extensions`` package, which provides backports of newer typing features.
+# Similarly, TypeAlias is officially part of the standard library `typing`` module.
 # The syntax
 
 from typing import override
@@ -370,7 +371,23 @@ Signature Mismatch (Different Parameters between parent and child methods)
 
 
 On the contrary, 1. The typing.final decorator is used to restrict the use of inheritance and overriding. 2. The typing.Final type qualifier is used to indicate that a variable or attribute should not be reassigned, redefined, or overridden.
+
+
+
+
 """
+from typing import TypeAlias
+# Type aliases may be defined by simple variable assignments
+Url = str   # Url returns <class 'str'>
+# Or by using typing.TypeAlias
+Url: TypeAlias = str
+# Or by using the type statement (Python 3.12 and higher)
+type Url = str
+# Note that we recommend capitalizing alias names, since they represent user-defined types like user-defined classes.
+
+# In adk-python/src/google/adk/agents/llm_agent.py, 
+Agent: TypeAlias = LlmAgent
+
 from typing import final
 
 # decorator at class defination
