@@ -591,7 +591,22 @@ else:
 # a ternary operator for a one-liner
 print("Message") if not condition else do_something()
 
-# The `if not variable:` construct is generally preferred for checking emptiness as it is concise and leverages Python's built-in truthiness rules.
+"""
+In Python, the `if not variable:` construct is used to check for the "falsiness" of a variable. This means the code block following the if not statement will execute if the variable evaluates to a boolean False. 
+How Python evaluates "falsiness":
+Python's built-in types have inherent "truthy" or "falsy" values when evaluated in a boolean context. Specifically, the following are considered "falsy":
+- None
+- False
+- Numeric zero values: 0, 0.0, 0j
+- Empty sequences: '' (empty string), [] (empty list), () (empty tuple)
+- Empty mappings: {} (empty dictionary)
+- Empty sets: set()
+
+The `if not variable:` construct is generally preferred for checking emptiness as it is concise and leverages Python's built-in truthiness rules.
+
+For explicitly checking None, `if variable is None:` is the correct and most Pythonic approach.
+"""
+
 my_string = ""
 my_list = []
 my_number = 0
@@ -603,7 +618,7 @@ if not my_list:
 if not my_number:
     print("my_number is zero or falsy")
 
-# For explicitly checking None, `if variable is None:` is the correct and most Pythonic approach.
+
 my_data = None
 # or my_data = ""
 # or my_data = []
@@ -628,3 +643,4 @@ except NameError as e:
 age = "25"
 if not isinstance(age, int):
     raise ValueError("Age should be an integer.")
+
