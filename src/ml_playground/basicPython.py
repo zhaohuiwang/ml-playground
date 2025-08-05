@@ -644,3 +644,56 @@ age = "25"
 if not isinstance(age, int):
     raise ValueError("Age should be an integer.")
 
+
+
+############### enum (short for enumeration) ###############
+# The enum module, introduced in Python 3.4, provides support for creating enumerations using the Enum class. Each member of an enumeration is a unique, named constant, often used to represent a fixed set of options or states.
+
+# Key Features of Enums: unique members, no duplicates; immutable; iterable; comparison (is or ==)
+from enum import Enum
+
+class TrafficLight(Enum):
+    RED = "stop"
+    YELLOW = "caution"
+    GREEN = "go"
+
+def handle_traffic_light(light):
+    if light == TrafficLight.RED:
+        print("Stop the car!")
+    elif light == TrafficLight.YELLOW:
+        print("Prepare to stop.")
+    elif light == TrafficLight.GREEN:
+        print("Go ahead.")
+
+# Usage
+handle_traffic_light(TrafficLight.GREEN)  # Output: Go ahead.
+
+
+# Use enum.auto() to automatically assign values (starting from 1 and incrementing).
+from enum import Enum, auto
+class Animal(Enum):
+    DOG = auto()  # 1
+    CAT = auto()  # 2
+    BIRD = auto() # 3
+
+# Use the @unique decorator to ensure no duplicate values.
+from enum import Enum, unique
+
+@unique
+class Day(Enum):
+    MONDAY = 1
+    TUESDAY = 2
+    # WEDNESDAY = 1  # Raises ValueError due to duplicate value
+
+# Enums can have methods for additional functionality.
+from enum import Enum
+
+class Mood(Enum):
+    HAPPY = 1
+    SAD = 2
+    ANGRY = 3
+
+    def describe(self):
+        return f"Feeling {self.name.lower()} today!"
+
+print(Mood.HAPPY.describe())  # Output: Feeling happy today!
