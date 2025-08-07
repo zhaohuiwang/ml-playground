@@ -697,3 +697,74 @@ class Mood(Enum):
         return f"Feeling {self.name.lower()} today!"
 
 print(Mood.HAPPY.describe())  # Output: Feeling happy today!
+
+
+
+############### typing ###############
+
+# typing.Annotated allows attaching context-specific metadata to types in Python. This metadata is ignored by static type checking but can be accessed and utilized at runtime by libraries or frameworks for various purposes, such as validation, serialization, or documentation generation. In essence, typing.Annotated provides a standardized way to embed extra, tool-specific information directly within your type hints, making them more powerful and expressive for advanced use cases beyond basic type checking.
+# Annotated[T, metadata_1, metadata_2, ...] allows you to associate one or more metadata objects with a base type T. The first argument is always the actual type, and subsequent arguments are the metadata.
+
+from typing import Annotated, Any
+from dataclasses import dataclass, field
+
+@dataclass()    # vs @dataclass
+class Profile:
+    name: str
+    age: Annotated[int, lambda x: x > 0, lambda x: x < 120]
+    jobs: list[str] = field(default_factory=list)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if field := self.__dataclass_fields__.get(name):
+            if metadata := getattr(field.type, "__metadata__", None):
+                assert metadata[0](value), f"Invalid value passed to {name!r} field: {value!r}"
+                assert metadata[1](value), f"Invalid value passed to {name!r} field: {value!r}"
+        super().__setattr__(name, value)
+
+
+
+p = Profile(name='ZW', age=26)
+p.age
+
+p2 = Profile(name='ZW', age=-26)
+
+p3 = Profile(name='ZW', age=126)
+
+"""
+In Python, decorators are callable objects (functions or classes) that modify or wrap a function or class. When you write @dataclass, Python automatically calls the decorator with default arguments. Writing @dataclass() explicitly calls it with no arguments, which is equivalent to the default behavior. Since the code uses @dataclass() with no arguments, it behaves the same as @dataclass. The Profile class gets the default dataclass behavior: an automatically generated __init__, __repr__, __eq__, etc.
+
+Use @dataclass: For brevity and when following Python's standard documentation style. It's concise and widely understood.
+Use @dataclass(): For explicitness, consistency with configurable decorators, or to align with a codebase's style guide. It's also useful if you plan to add arguments later without changing the syntax. For example, @dataclass(frozen=True) to make it immutable.
+
+jobs: list[str] = field(default_factory=list): A list of strings with a default value of an empty list, created via default_factory to ensure each instance gets a new list (avoiding shared mutable defaults).
+
+The walrus operator (:=, known as an assignment expression) combines assignment and evaluation in a single expression. It assigns a value to a variable and returns that value, allowing it to be used immediately in a condition or expression. Its syntax := visually resembles the eyes and tusks of a walrus (a marine mammal). 
+
+if field := self.__dataclass_fields__.get(name):
+
+What it does:
+1. self.__dataclass_fields__.get(name) retrieves the dataclass field metadata for the attribute name. If name is not a dataclass field, .get(name) returns None.
+2. The := operator assigns this result to the variable field.
+3. The expression field := self.__dataclass_fields__.get(name) evaluates to the assigned value, which is then used in the if condition.
+4. If the value is non-None (i.e., the field exists), the if block executes.
+
+Equivalent without :=:
+pythonfield = self.__dataclass_fields__.get(name)
+if field:
+
+"""
+
+# Alternative: pydantic handles type checking, validation, and initialization in a more robust way
+from pydantic import BaseModel, Field
+
+class Profile(BaseModel):
+    name: str
+    age: int = Field(gt=0, lt=120)
+    jobs: list[str] = []
+
+p = Profile(name='ZW', age=26)
+p.age
+
+p2 = Profile(name='ZW', age=-26)
+
+p3 = Profile(name='ZW', age=126)
