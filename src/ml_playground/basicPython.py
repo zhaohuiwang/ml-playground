@@ -1,3 +1,10 @@
+# Parameter: A parameter is a VARIABLE defined in the function's signature during its definition.
+# Argument: An argument is the ACTUAL VALUE or DATA that is passed to a function when it is called. 
+# The information in a class is stored in attributes, and functions that belong to a class are called methods.
+
+# Prompt user input. All input is stored as a string.
+name = input("What's your name? ")
+print("Hello, " + name + "!")
 
 
 # print(*objects, sep=' ', end='\n', file=None, flush=False)
@@ -153,6 +160,8 @@ print(list_a)
 list_a.extend(list_b)
 print(list_a)
 
+# List apprehensions
+[i for i in range(12) if i > 4]
 
 content = []
 # content attribute is not considered "falsy" (e.g., it's not None, an empty string, or an empty list)
@@ -160,6 +169,12 @@ if content:
     print(True)
 else:
     print(False)
+
+# Dictionary
+alien = {'color': 'green', 'points': 5}
+alien.items()   # list of tuple (key, value)
+alien.keys()    # list of all keys
+alien.values()  # list of all values
 
 """
 Easydict
@@ -441,7 +456,7 @@ print(f"API Key: {api_key}")
 """
 sys.argv: A built-in Python list in the sys module that captures command-line arguments as strings. It's the simplest, most basic way to access CLI inputs but requires manual parsing.
 
-argparse: A standard library module for parsing command-line arguments. It provides a robust, flexible framework for defining and validating arguments, generating help messages, and handling complex CLIs.
+argparse: A a built-in module in Python for parsing command-line arguments. It provides a robust, flexible framework for defining and validating arguments, generating help messages, and handling complex CLIs.
 
 Click: A third-party library (pip install click) that uses decorators to create concise, user-friendly CLIs with features like nested commands and automatic help generation.
 
@@ -710,7 +725,7 @@ from dataclasses import dataclass, field
 
 @dataclass()    # vs @dataclass
 class Profile:
-    name: str
+    fname: str
     age: Annotated[int, lambda x: x > 0, lambda x: x < 120]
     jobs: list[str] = field(default_factory=list)
 
@@ -719,16 +734,18 @@ class Profile:
             if metadata := getattr(field.type, "__metadata__", None):
                 assert metadata[0](value), f"Invalid value passed to {name!r} field: {value!r}"
                 assert metadata[1](value), f"Invalid value passed to {name!r} field: {value!r}"
+        #print(field)
+        #print(metadata)
         super().__setattr__(name, value)
 
 
 
-p = Profile(name='ZW', age=26)
+p = Profile(fname='ZW', age=26)
 p.age
 
-p2 = Profile(name='ZW', age=-26)
+p2 = Profile(fname='ZW', age=-26)
 
-p3 = Profile(name='ZW', age=126)
+p3 = Profile(fname='ZW', age=126)
 
 """
 In Python, decorators are callable objects (functions or classes) that modify or wrap a function or class. When you write @dataclass, Python automatically calls the decorator with default arguments. Writing @dataclass() explicitly calls it with no arguments, which is equivalent to the default behavior. Since the code uses @dataclass() with no arguments, it behaves the same as @dataclass. The Profile class gets the default dataclass behavior: an automatically generated __init__, __repr__, __eq__, etc.
@@ -752,6 +769,27 @@ Equivalent without :=:
 pythonfield = self.__dataclass_fields__.get(name)
 if field:
 
+The !r in {name!r} and {value!r} ensures that the repr() method is used to format the name and value variables in the f-string
+
+name = "age"
+value = 150
+print(f"{name}")    # age
+print(f"{name!r}")  # 'age'
+print(f"{value}")   # 150
+print(f"{value!r}") # 150
+print(repr(value))  # '150'
+print(repr(name))   # 'age'
+print(str(name))    # age
+
+No specifier ({name}): Uses __str__() (or __repr__() if __str__() is not defined). For strings, this omits quotes (e.g., age instead of 'age'), which can be less clear in error messages.
+!s: Explicitly uses __str__(). For most built-in types like strings and integers, this is similar to no specifier, but for custom objects, __str__() might produce a different output.
+
+The __repr__() method in Python defines the "official" string representation of an object. This representation is primarily intended for developers and is used for debugging, logging, and inspection. The built-in repr() function explicitly calls an object's __repr__() method. (developer-friendly)
+
+The built-in method str() calls __str__(). They return a readable, human-friendly string, often less technical.
+
+
+
 """
 
 # Alternative: pydantic handles type checking, validation, and initialization in a more robust way
@@ -768,3 +806,32 @@ p.age
 p2 = Profile(name='ZW', age=-26)
 
 p3 = Profile(name='ZW', age=126)
+
+
+
+#### typing.typeddict vs Pydantic.BaseModel vs dataclasses.dataclass ###
+
+import pandas as pd
+from tabulate import tabulate
+
+# Data for a comparison table
+data = {
+    "Feature": [
+        "Purpose","Runtime Validation","Type Checking","Serialization","Dependencies","Performance","Use Case","Attribute Access","Immutability"
+    ],
+    "dataclasses.dataclass": [
+        "Structured classes","No","Static (mypy)","Limited (needs libraries)","None (stdlib)","Low overhead","Internal domain models","Object (user.name)","Via frozen=True"
+    ],
+    "typing.TypedDict": [
+        "Type-checked dictionaries","No","Static (mypy)","No","None (stdlib)","Minimal overhead","JSON/API type safety","Dict (user['name'])","N/A"
+    ],
+    "pydantic.BaseModel": [
+        "Validated data models","Yes","Static + Runtime","Yes (JSON, etc.)","Pydantic library","Higher overhead","APIs, configs, validation","Object (user.name)","Configurable"
+    ]
+}
+df = pd.DataFrame(data)
+
+# Display the DataFrame
+print(tabulate(df, headers='keys', tablefmt='grid', showindex=False))
+# Pretty print with to_string
+print(df.to_string(index=False, justify='left'))
